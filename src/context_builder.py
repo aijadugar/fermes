@@ -49,6 +49,9 @@ def build_context(msg_row: dict, dataset) -> dict:
         created_at = None
 
     media_text, media_status = resolve_media_text(media_type, media_id, dataset)
+    if media_text and len(media_text) > config.MAX_MEDIA_TEXT_CHARS:
+        media_text = media_text[:config.MAX_MEDIA_TEXT_CHARS] + "...[truncated]"
+
     effective_text = message_text
     if media_text:
         effective_text = (effective_text + "\n" + media_text).strip()
@@ -81,7 +84,7 @@ def build_context(msg_row: dict, dataset) -> dict:
     same_sender_history = dataset.history_from_sender(
         user_id, sender_user_id=sender_user_id or None, business_id=business_id or None
     )
-    evidence_ids = list(same_sender_history["message_id"]) if len(same_sender_history) else []
+    evidence_ids = list(same_sender_history["message_id"])[-20:] if len(same_sender_history) else []
 
     reported_precedent_ids = []
     if len(same_sender_history):
@@ -92,11 +95,10 @@ def build_context(msg_row: dict, dataset) -> dict:
 
     scam_like_precedent_ids = []
     scam_terms = ("otp", "reattempt", "verification", "qr", "clearance", "blocked", "suspend")
-    hist_df = dataset.message_history
-    if len(hist_df):
-        text_col = hist_df["message_text"].str.lower()
+    if len(same_sender_history):
+        text_col = same_sender_history["message_text"].str.lower()
         mask = text_col.apply(lambda t: any(term in t for term in scam_terms))
-        scam_like_precedent_ids = list(hist_df[mask]["message_id"])
+        scam_like_precedent_ids = list(same_sender_history[mask]["message_id"])[:20]
 
     text_lower = effective_text.lower()
     hits_scam_keywords = [k for k in config.SCAM_KEYWORDS if k in text_lower]
@@ -120,7 +122,6 @@ def build_context(msg_row: dict, dataset) -> dict:
         "media_type": media_type,
         "media_id": media_id,
         "media_status": media_status,
-        "media_extracted_text": media_text,
         "effective_text": effective_text,
         "forwarded_count": forwarded_count,
 

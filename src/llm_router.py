@@ -5,13 +5,7 @@ import logging
 import re
 from dataclasses import dataclass
 
-from tenacity import (
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-    before_sleep_log,
-)
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential, before_sleep_log
 
 from . import config
 
@@ -190,12 +184,21 @@ def _validate(decision: dict) -> dict:
 )
 def _call_sarvam(ctx: dict, sample_df) -> dict:
     client = _get_client()
+    user_prompt = _build_user_prompt(ctx, sample_df)
+
+    estimated_tokens = (len(SYSTEM_PROMPT) + len(user_prompt)) // 4
+    if estimated_tokens + config.LLM_MAX_TOKENS > config.LLM_MAX_TOKENS_LIMIT:
+        raise InvalidLLMResponseError(
+            f"Prompt too large ({estimated_tokens} estimated tokens) for message_id={ctx.get('message_id')}; "
+            "skipping instead of retrying a request that will always fail."
+        )
+
     try:
         response = client.chat.completions(
             model=config.REASONING_MODEL,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": _build_user_prompt(ctx, sample_df)},
+                {"role": "user", "content": user_prompt},
             ],
             temperature=config.LLM_TEMPERATURE,
             max_tokens=config.LLM_MAX_TOKENS,
