@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import logging
+import tempfile
 import zipfile
 from pathlib import Path
 from typing import Optional
 
+from PIL import Image
 from tenacity import retry, stop_after_attempt, wait_exponential, before_sleep_log
 
 from . import config
@@ -26,6 +28,24 @@ def _get_client():
         _client = SarvamAI(api_subscription_key=config.SARVAM_API_KEY)
     return _client
 
+def _normalize_to_jpeg(file_path: Path) -> tuple[Path, bool]:
+    try:
+        with Image.open(file_path) as img:
+            if img.format == "JPEG":
+                return file_path, False
+
+            logger.info(
+                "File %s has .jpg extension but is actually %s — converting.",
+                file_path, img.format,
+            )
+            rgb = img.convert("RGB")
+            tmp_path = Path(tempfile.mktemp(suffix=".jpg"))
+            rgb.save(tmp_path, format="JPEG", quality=95)
+            return tmp_path, True
+    except Exception as exc:
+        raise MediaProcessingError(
+            f"Could not open/normalize image {file_path}: {exc}"
+        ) from exc
 
 @retry(
     reraise=True,
@@ -60,12 +80,13 @@ def transcribe_audio(file_path: Path) -> str:
 )
 def extract_image_text(file_path: Path) -> str:
     client = _get_client()
+    upload_path, is_temp = _normalize_to_jpeg(file_path)
     try:
         job = client.document_intelligence.create_job(
             language=config.VISION_LANGUAGE,
             output_format=config.VISION_OUTPUT_FORMAT,
         )
-        job.upload_file(str(file_path))
+        job.upload_file(str(upload_path))
         job.start()
         job.wait_until_complete()
 
@@ -85,7 +106,9 @@ def extract_image_text(file_path: Path) -> str:
         raise
     except Exception as exc:
         raise MediaProcessingError(f"Sarvam Vision extraction failed for {file_path}: {exc}") from exc
-
+    finally:
+        if is_temp:
+            upload_path.unlink(missing_ok=True)
 
 def resolve_media_text(media_type: str, media_id: str, dataset) -> tuple[Optional[str], str]:
     media_type = (media_type or "").strip().lower()
