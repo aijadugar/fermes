@@ -12,7 +12,7 @@ from . import config
 def _read_csv(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
-    return pd.read_csv(path, sep="\t", dtype=str, keep_default_na=False)
+    return pd.read_csv(path, sep=None, engine="python", dtype=str, keep_default_na=False)
 
 
 @dataclass
