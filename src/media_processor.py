@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Optional
 
 from PIL import Image
-from tenacity import retry, stop_after_attempt, wait_exponential, before_sleep_log
+from mutagen import File as MutagenFile
+from tenacity import retry, stop_after_attempt, wait_exponential, before_sleep_log, retry_if_exception
 
 from . import config
 
@@ -27,6 +28,20 @@ def _get_client():
         from sarvamai import SarvamAI
         _client = SarvamAI(api_subscription_key=config.SARVAM_API_KEY)
     return _client
+
+def _get_audio_duration_seconds(file_path: Path) -> Optional[float]:
+    try:
+        audio = MutagenFile(str(file_path))
+        if audio is not None and audio.info is not None:
+            return float(audio.info.length)
+    except Exception as exc:
+        logger.warning("Could not read audio duration for %s: %s", file_path, exc)
+    return None
+
+def _is_retryable_media_error(exc: BaseException) -> bool:
+    if isinstance(exc, MediaProcessingError) and "exceeds the maximum limit" in str(exc):
+        return False
+    return True
 
 def _normalize_to_jpeg(file_path: Path) -> tuple[Path, bool]:
     try:
@@ -52,6 +67,7 @@ def _normalize_to_jpeg(file_path: Path) -> tuple[Path, bool]:
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, max=10),
     before_sleep=before_sleep_log(logger, logging.WARNING),
+    retry=retry_if_exception(_is_retryable_media_error),
 )
 def transcribe_audio(file_path: Path) -> str:
     client = _get_client()
@@ -141,6 +157,16 @@ def resolve_media_text(media_type: str, media_id: str, dataset) -> tuple[Optiona
         if not full_path.exists():
             logger.warning("Audio file missing on disk: %s", full_path)
             return None, "unavailable"
+
+        duration = _get_audio_duration_seconds(full_path)
+        if duration is not None and duration > config.MAX_REALTIME_AUDIO_SECONDS:
+            logger.warning(
+                "Audio %s is %.1fs, exceeds the %ds real-time API limit — "
+                "skipping transcription (batch API not implemented).",
+                full_path, duration, config.MAX_REALTIME_AUDIO_SECONDS,
+            )
+            return None, "unavailable"
+
         try:
             return transcribe_audio(full_path), "ok"
         except MediaProcessingError:
