@@ -203,7 +203,6 @@ def _call_sarvam(ctx: dict, sample_df) -> dict:
             temperature=config.LLM_TEMPERATURE,
             max_tokens=config.LLM_MAX_TOKENS,
             reasoning_effort=None,
-            response_format={"type": "json_object"},
         )
     except Exception as exc:
         raise SarvamAPIError(f"Sarvam-105B call failed: {exc}") from exc
