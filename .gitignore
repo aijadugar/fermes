@@ -1,6 +1,8 @@
 .vscode/
 dataset/
 
+.venv/
+
 .env
 
 __pycache__/
