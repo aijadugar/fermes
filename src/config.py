@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # Root and Dataset
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -12,7 +14,7 @@ OUTPUT_PATH = DATASET_DIR / "output.csv"
 
 # Sarvam AI
 
-SARVAM_API_KEY = os.environ.get("SARVAM_API_KEY", "").strip()
+SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "").strip()
 
 STT_MODEL = "saaras:v3"
 REASONING_MODEL = "sarvam-105b"
@@ -60,11 +62,9 @@ class ConfigurationError(RuntimeError):
 
 
 def require_api_key() -> str:
-    """Fail fast with a clear message if SARVAM_API_KEY is not configured."""
     if not SARVAM_API_KEY:
         raise ConfigurationError(
-            "SARVAM_API_KEY is not set. Export it before running, e.g.:\n"
-            "    export SARVAM_API_KEY=your_key_here\n"
-            "or copy API key to .env and fill it in."
+            "SARVAM_API_KEY is not set. Create at https://indus.sarvam.ai/key-management\n"
+            "and set SARVAM_API_KEY=your_key_here in .env\n"
         )
     return SARVAM_API_KEY
