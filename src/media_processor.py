@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import logging
 import tempfile
+import time
 import zipfile
 from pathlib import Path
 from typing import Optional
 
-from PIL import Image
+import httpx
 from mutagen import File as MutagenFile
+from PIL import Image
 from tenacity import retry, stop_after_attempt, wait_exponential, before_sleep_log, retry_if_exception
 
 from . import config
@@ -87,6 +89,94 @@ def transcribe_audio(file_path: Path) -> str:
     except Exception as exc:
         raise MediaProcessingError(f"Saaras v3 transcription failed for {file_path}: {exc}") from exc
 
+@retry(
+    reraise=True,
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, max=10),
+    before_sleep=before_sleep_log(logger, logging.WARNING),
+)
+def batch_transcribe_audio(file_path: Path) -> str:
+    client = _get_client()
+    try:
+        init_response = client.speech_to_text_job.initialise(
+            job_parameters={
+                "language_code": getattr(config, "STT_LANGUAGE", "unknown"),
+                "model": config.STT_MODEL,
+                "mode": "transcribe",
+            }
+        )
+        job_id = init_response.job_id
+
+        filename = file_path.name
+        upload_response = client.speech_to_text_job.get_upload_links(
+            job_id=job_id, files=[filename]
+        )
+        file_details = upload_response.upload_urls.get(filename)
+        if not file_details:
+            raise MediaProcessingError(f"No upload URL returned for {filename}")
+        upload_url = file_details.file_url
+
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+        put_resp = httpx.put(
+            upload_url,
+            content=file_data,
+            headers={
+                "Content-Type": "audio/mpeg",
+                "x-ms-blob-type": "BlockBlob",
+            },
+            timeout=300.0,
+        )
+        put_resp.raise_for_status()
+
+        client.speech_to_text_job.start(job_id=job_id)
+
+        elapsed = 0
+        status = None
+        while elapsed < config.BATCH_STT_MAX_POLL_SECONDS:
+            status = client.speech_to_text_job.get_status(job_id=job_id)
+            if status.job_state in ("Completed", "Failed"):
+                break
+            time.sleep(config.BATCH_STT_POLL_INTERVAL_SECONDS)
+            elapsed += config.BATCH_STT_POLL_INTERVAL_SECONDS
+
+        if status is None or status.job_state != "Completed":
+            raise MediaProcessingError(
+                f"Batch STT job {job_id} did not complete successfully "
+                f"(state={getattr(status, 'job_state', 'unknown')}) for {file_path}"
+            )
+
+        output_filename = None
+        for detail in status.job_details or []:
+            for output in detail.outputs or []:
+                output_filename = output.file_name
+                break
+            if output_filename:
+                break
+        if not output_filename:
+            raise MediaProcessingError(f"Batch STT job {job_id} completed but produced no output file")
+
+        download_response = client.speech_to_text_job.get_download_links(
+            job_id=job_id, files=[output_filename]
+        )
+        download_details = download_response.download_urls.get(output_filename)
+        if not download_details:
+            raise MediaProcessingError(f"No download URL returned for {output_filename}")
+
+        result = httpx.get(download_details.file_url, timeout=60.0)
+        result.raise_for_status()
+        transcript_data = result.json()
+        logger.debug("Batch STT raw output for %s: %s", file_path, transcript_data)
+        transcript = (transcript_data.get("transcript") or "").strip()
+
+        if not transcript:
+            raise MediaProcessingError(f"Batch STT returned an empty transcript for {file_path}")
+        return transcript
+
+    except MediaProcessingError:
+        raise
+    except Exception as exc:
+        raise MediaProcessingError(f"Batch STT transcription failed for {file_path}: {exc}") from exc
 
 @retry(
     reraise=True,
@@ -159,15 +249,15 @@ def resolve_media_text(media_type: str, media_id: str, dataset) -> tuple[Optiona
             return None, "unavailable"
 
         duration = _get_audio_duration_seconds(full_path)
-        if duration is not None and duration > config.MAX_REALTIME_AUDIO_SECONDS:
-            logger.warning(
-                "Audio %s is %.1fs, exceeds the %ds real-time API limit — "
-                "skipping transcription (batch API not implemented).",
-                full_path, duration, config.MAX_REALTIME_AUDIO_SECONDS,
-            )
-            return None, "unavailable"
+        use_batch = duration is not None and duration > config.MAX_REALTIME_AUDIO_SECONDS
 
         try:
+            if use_batch:
+                logger.info(
+                    "Audio %s is %.1fs, exceeds the %ds real-time limit — using Batch STT.",
+                    full_path, duration, config.MAX_REALTIME_AUDIO_SECONDS,
+                )
+                return batch_transcribe_audio(full_path), "ok"
             return transcribe_audio(full_path), "ok"
         except MediaProcessingError:
             logger.exception("Giving up on audio transcription for %s", full_path)
