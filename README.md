@@ -1,74 +1,72 @@
-# Message Notification Router
+# Growing/farming agent — backend
 
-A personalized WhatsApp notification router, run entirely from the terminal. For every message in `dataset/messages.csv` it decides `notify` / `digest` / `mute` using Sarvam AI for multimodal reasoning.
+Backend API for an agent that helps anyone growing something: whether a site is
+suitable to grow on, and finding nearby suppliers/warehouses/dealers/buyers.
+Frontend (three.js) attaches separately via the HTTP API below.
 
-All routing decisions come from **Sarvam-105B**.
-
-```mermaid
-flowchart LR
-
-    T["💬 Text Message"] --> LLM["🧠 Sarvam-105B"]
-
-    V["🎤 Voice Note"] --> STT["🎙️ Saaras v3<br/>Speech-to-Text"]
-    STT --> TR["📝 Transcript"]
-    TR --> LLM
-
-    I["🖼️ Image"] --> VIS["👁️ Sarvam Vision"]
-    VIS --> OCR["📄 Extracted Text (OCR)"]
-    OCR --> LLM
-
-    LLM --> DECISION{"📢 Routing Decision"}
-
-    DECISION --> N["🔔 Notify"]
-    DECISION --> D["📰 Digest"]
-    DECISION --> M["🔕 Mute"]
-```
-
-## Layout
-
-```
-Code/
-├── main.py                 # CLI entry point, it writes dataset/output.csv
-├── evalution/main.py       # scores output.csv against a labeled ground-truth file
-├── src/
-│   ├── config.py           # paths, model names, fail-fast API key validation
-│   ├── data_loader.py      # loads every dataset CSV into a Dataset object
-│   ├── media_processor.py  # Saaras v3 (audio) + Sarvam Vision (image), with retries
-│   ├── context_builder.py  # joins user/group/business/history signals per message
-│   └── llm_router.py       # prompts Sarvam-105B, validates JSON, retries on failure
-├── requirements.txt
-```
+## Stack
+- **Sarvam AI** — chat completions (`sarvam-105b`, tool-calling) for reasoning,
+  plus speech-to-text and text-to-speech for voice in/out.
+- **Mireye** — cited land facts (elevation, flood zone, soil) for a coordinate.
+  **US primary coverage, Canada limited to proximity/drive-time, no other
+  regions.** It is not a business directory.
+- **Google Places** — nearby-business search (dealers, warehouses, co-ops),
+  swappable per region.
 
 ## Setup
-
 ```bash
-pip install -r requirements.txt
-touch .env
-SARVAM_API_KEY=...    # then fill api key in SARVAM_API_KEY
+npm install
+cp .env.example .env   # fill in SARVAM_API_KEY, MIREYE_API_KEY, GOOGLE_PLACES_API_KEY
+npm start               # or: npm run dev (auto-restart)
 ```
 
-## Run
+Confirm `MIREYE_BASE_URL` against your actual Mireye dashboard/docs before
+relying on it — `src/services/mireye.js` uses a placeholder base URL.
 
-```bash
-python main.py
+## API
+
+### `GET /health`
+Liveness check.
+
+### `POST /v1/agent/message`
+`multipart/form-data`:
+
+| field | required | notes |
+|---|---|---|
+| `session_id` | yes | any string; keys conversation history |
+| `text` | one of text/audio | plain-text message |
+| `audio` | one of text/audio | audio file, transcribed via Sarvam STT |
+| `language_code` | no | e.g. `hi-IN`, used for STT hints and TTS output |
+| `respond_with_audio` | no | `"true"` to also return synthesized speech |
+
+Response:
+```json
+{
+  "reply": "string",
+  "transcript": "string (echoes what was understood, useful to show in UI)",
+  "tool_trace": [{ "tool": "check_site_suitability", "args": {...}, "result": {...} }],
+  "audio_base64": "optional, present if respond_with_audio=true"
+}
 ```
 
-Writes `dataset/output.csv` with columns:
-`message_id, action, message_type, reason, confidence, evidence_message_ids`.
-
-Useful flags:
-
-```bash
-python main.py --limit 5              # process only the first 5 messages (debugging)
-python main.py --workers 8            # more concurrent Sarvam API calls (default 4)
-python main.py --verbose              # debug-level logging
-python main.py --allow-partial        # write output.csv with successful rows even if some fail
+## Architecture
 ```
+audio/text -> [Sarvam STT] -> [Sarvam LLM + tools] -> reply -> [Sarvam TTS]
+                                     |
+                    +----------------+----------------+
+                    |                                 |
+            Mireye (site suitability)      Places API (nearby businesses)
+```
+The LLM decides which tool(s) to call per turn (`src/agent/tools.js`); the
+loop lives in `src/agent/orchestrator.js`. Sessions are in-memory
+(`src/session/store.js`) — swap for Redis/a DB before running multiple
+server instances or needing history to survive restarts.
 
-## How a decision is made
-
-1. **`data_loader.py`** loads every CSV (`users`, `groups`, `group_members`, `business_accounts`, `user_business_history`, `message_history`, `message_events`, `images`, `voice_notes`, `daily_notification_summary`).
-2. **`media_processor.py`** resolves any `media_type` / `media_id` on the message: voice notes go through Saaras v3 (`speech_to_text.transcribe`, `model="saaras:v3"`), images/posters go through Sarvam Vision (`document_intelligence` job -> OCR/markdown). If a file can't be read, or the Sarvam call fails after retries, the pipeline records `media_status="unavailable"` instead of guessing at content.
-3. **`context_builder.py`** assembles one JSON context per message: user engagement/report/DND stats, group role of the *sender* (admin vs member) and whether the *receiving user* has muted the group or is @-mentioned, business verification + the user's real relationship to that business (order/booking/payment history, promo opt-in/out), repetition signals (past messages from the same sender/business, and whether similar messages were previously reported/dismissed), explicit lexical signals (scam/forward-chain/promo keyword hits - handed to the
-   model as *observations*, not as a decision rule), and recent daily notification load.
-4. **`llm_router.py`** sends that context, plus a few-shot block built from `sample_messages.csv`, to Sarvam-105B with a system prompt encoding the product policy (risk overrides engagement, muted groups can still surface direct mentions, unopted promotions don't `notify`, etc.) and asks for strict JSON. The response is validated against the allowed `action` / `message_type` enums before being trusted.
+## Known gaps to close before production
+- Mireye base URL/paths are unverified — confirm against your account's docs.
+- No auth on `/v1/agent/message` yet — add a token/session check before
+  exposing this publicly.
+- `reasoning_effort: null` disables Sarvam's thinking mode for latency; turn
+  it back on if you see the model making bad tool choices on hard queries.
+- Places search is US/Canada-shaped by default (Google Places); swap or add
+  a second provider for other regions.

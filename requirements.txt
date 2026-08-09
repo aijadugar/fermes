@@ -1,6 +1,0 @@
-pandas>=2.0
-sarvamai>=0.1.0
-tenacity>=8.2
-mutagen>=1.48.1
-pillow>=12.3.0
-dotenv>=0.9.9
