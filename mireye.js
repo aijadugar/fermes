@@ -38,7 +38,7 @@ export function mireyeGeocode(address) {
 
 /** Fetch specific cited fields (elevation, flood_zone, soil_type, etc.) at a coordinate. */
 export function mireyeFetchFields(lat, lon, fields) {
-  return call('/v1/fetch', { lat, lon, fields }, 'POST');
+  return call('/v1/fetch', { lat, lng: lon, fields }, 'POST');
 }
 
 /** Real drive-time/distance ranking between an origin and candidate points (US full, Canada limited). */

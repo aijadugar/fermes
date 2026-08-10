@@ -12,11 +12,6 @@ If you don't have the person's coordinates yet, call resolve_location first.`;
 
 const MAX_TOOL_ROUNDS = 4;
 
-/**
- * @param {Array<{role:string, content:string}>} history prior turns (without system prompt)
- * @param {string} userText the new user message (already transcribed if it came from voice)
- * @returns {{reply: string, history: Array, toolTrace: Array}}
- */
 export async function handleMessage(history, userText) {
   const messages = [{ role: 'system', content: SYSTEM_PROMPT }, ...history, { role: 'user', content: userText }];
   const toolTrace = [];
@@ -27,12 +22,10 @@ export async function handleMessage(history, userText) {
     const message = choice.message;
 
     if (!message.tool_calls?.length) {
-      // Final answer — no more tools requested.
       const updatedHistory = [...history, { role: 'user', content: userText }, { role: 'assistant', content: message.content }];
       return { reply: message.content, history: updatedHistory, toolTrace };
     }
 
-    // Model wants tool(s) — execute each, feed results back, loop again.
     messages.push(message);
     for (const call of message.tool_calls) {
       const args = JSON.parse(call.function.arguments || '{}');
@@ -46,7 +39,7 @@ export async function handleMessage(history, userText) {
       messages.push({
         role: 'tool',
         tool_call_id: call.id,
-        content: JSON.stringify(result)
+        content: JSON.stringify(result),
       });
     }
   }

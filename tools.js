@@ -1,7 +1,6 @@
 import { mireyeAsk, mireyeFetchFields, mireyeGeocode, mireyeProximity, mireyeRequestField } from './mireye.js';
 import { findNearbyBusinesses } from './places.js';
 
-// Tool schemas handed to Sarvam's chat completions (`tools` param, OpenAI-compatible).
 export const toolSchemas = [
   {
     type: 'function',
@@ -11,9 +10,9 @@ export const toolSchemas = [
       parameters: {
         type: 'object',
         properties: { address: { type: 'string' } },
-        required: ['address']
-      }
-    }
+        required: ['address'],
+      },
+    },
   },
   {
     type: 'function',
@@ -26,11 +25,11 @@ export const toolSchemas = [
         properties: {
           lat: { type: 'number' },
           lon: { type: 'number' },
-          question: { type: 'string', description: 'What the grower actually wants to know, in plain language.' }
+          question: { type: 'string', description: 'What the grower actually wants to know, in plain language.' },
         },
-        required: ['lat', 'lon', 'question']
-      }
-    }
+        required: ['lat', 'lon', 'question'],
+      },
+    },
   },
   {
     type: 'function',
@@ -43,11 +42,11 @@ export const toolSchemas = [
         properties: {
           lat: { type: 'number' },
           lon: { type: 'number' },
-          businessType: { type: 'string', description: 'e.g. "seed dealer", "grain warehouse", "farm supply store"' }
+          businessType: { type: 'string', description: 'e.g. "seed dealer", "grain warehouse", "farm supply store"' },
         },
-        required: ['lat', 'lon', 'businessType']
-      }
-    }
+        required: ['lat', 'lon', 'businessType'],
+      },
+    },
   },
   {
     type: 'function',
@@ -59,12 +58,12 @@ export const toolSchemas = [
         properties: {
           description: { type: 'string' },
           lat: { type: 'number' },
-          lon: { type: 'number' }
+          lon: { type: 'number' },
         },
-        required: ['description']
-      }
-    }
-  }
+        required: ['description'],
+      },
+    },
+  },
 ];
 
 export async function executeTool(name, args) {
@@ -81,11 +80,10 @@ export async function executeTool(name, args) {
     case 'find_nearby_business': {
       const candidates = await findNearbyBusinesses({ lat: args.lat, lon: args.lon }, args.businessType);
       if (!candidates.length) return { candidates: [] };
-      // Rank by real drive time/distance rather than straight-line.
       const ranked = await mireyeProximity(
         { lat: args.lat, lon: args.lon },
         candidates.map((c) => ({ lat: c.lat, lon: c.lon }))
-      ).catch(() => null); // proximity is a nice-to-have; don't fail the whole tool call if it errors
+      ).catch(() => null);
       return { candidates, ranked };
     }
 
