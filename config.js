@@ -69,6 +69,7 @@ export const config = {
   mireye: {
     apiKey: required('MIREYE_API_KEY'),
     baseUrl: optional('MIREYE_BASE_URL', 'https://api.mireye.com'),
+    mode: optional('MIREYE_MODE', 'live'),
   },
 
   places: {
