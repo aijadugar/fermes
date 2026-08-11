@@ -20,6 +20,44 @@ successfully during development of this project — not just claimed.
 - **Session store** — pluggable: in-memory (with TTL) by default, Redis when
   `REDIS_URL` is set.
 
+## Demo mode (no API key needed)
+
+Set `MIREYE_MODE=mock` to run the demo without a real Mireye API key. Mock mode returns
+canned responses for 3 fixture locations instead of calling the real API. A warning is
+logged at startup when mock mode is active.
+
+### Fixture coordinates
+
+| Location | Coordinates | Description |
+|----------|-------------|-------------|
+| NYC-area good farm | `(41.0, -74.0)` | Warwick, NY — low flood risk, decent loam soil, suitable for farming |
+| Flood zone | `(29.0, -90.0)` | Plaquemines Parish, LA — high flood risk, below sea level, unsuitable |
+| Marginal soil | `(36.0, -100.0)` | Texas panhandle — sandy loam, low organic matter, needs amendment |
+
+### Sample curl commands
+
+```bash
+# NYC-area good farm plot (41.0, -74.0)
+curl -X POST http://localhost:3000/v1/agent/message \
+  -F "session_id=demo1" \
+  -F "text=Is land at coordinates 41.0, -74.0 suitable for farming?"
+
+# Flood-zone example (29.0, -90.0)
+curl -X POST http://localhost:3000/v1/agent/message \
+  -F "session_id=demo2" \
+  -F "text=What are the risks of farming at 29.0, -90.0?"
+
+# Marginal soil Texas panhandle (36.0, -100.0)
+curl -X POST http://localhost:3000/v1/agent/message \
+  -F "session_id=demo3" \
+  -F "text=Can I grow crops at 36.0, -100.0?"
+```
+
+If you query a location without a fixture, you'll get a helpful message listing the
+available fixture coordinates.
+
+---
+
 ## Quick start
 ```bash
 npm install

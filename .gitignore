@@ -1,6 +1,17 @@
-node_modules/
-dist/
-.env
-
+```
+# Environment
+.env.local
 .env.*
-!.env.example
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Editors
+.vscode/
+.idea/
+
+# Dependencies
+node_modules/
+```
