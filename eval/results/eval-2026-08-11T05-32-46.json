@@ -1,0 +1,204 @@
+{
+  "timestamp": "2026-08-11T05:32:46.315Z",
+  "summary": {
+    "total": 8,
+    "passed": 0,
+    "failed": 8,
+    "accuracy": 0,
+    "avgLatencyMs": 0,
+    "totalToolCalls": 0,
+    "estimatedCostUsd": 0.016,
+    "totalTimeMs": 2
+  },
+  "costEstimates": {
+    "sarvam_chat": 0.002,
+    "sarvam_stt": 0.005,
+    "sarvam_tts": 0.003,
+    "mireye_ask": 0.01,
+    "mireye_geocode": 0.005,
+    "mireye_fetch": 0.008,
+    "mireye_proximity": 0.01,
+    "places_nearby": 0.02
+  },
+  "cases": [
+    {
+      "name": "good_site_warwick_ny",
+      "description": "NYC-area good farm plot with low flood risk and decent soil",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "suitable",
+          "flood",
+          "loam"
+        ],
+        "missingTools": [
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "",
+      "toolTrace": []
+    },
+    {
+      "name": "flood_zone_louisiana",
+      "description": "High flood risk area, unsuitable for most farming",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "unsuitable",
+          "flood",
+          "Zone AE"
+        ],
+        "missingTools": [
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "",
+      "toolTrace": []
+    },
+    {
+      "name": "marginal_soil_texas",
+      "description": "Marginal soil conditions requiring amendment",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "marginal",
+          "sandy loam",
+          "organic matter"
+        ],
+        "missingTools": [
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "",
+      "toolTrace": []
+    },
+    {
+      "name": "vague_location_no_coords",
+      "description": "User mentions a place name without coordinates - should geocode first",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "Warwick",
+          "suitable"
+        ],
+        "missingTools": [
+          "resolve_location",
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "",
+      "toolTrace": []
+    },
+    {
+      "name": "missing_location_generic",
+      "description": "User asks about farming without specifying where",
+      "passed": false,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [],
+        "factsMissing": [
+          "location",
+          "where"
+        ]
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "",
+      "toolTrace": []
+    },
+    {
+      "name": "vague_location_louisiana",
+      "description": "User mentions Louisiana delta region without coords",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "flood",
+          "unsuitable"
+        ],
+        "missingTools": [
+          "resolve_location",
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "",
+      "toolTrace": []
+    },
+    {
+      "name": "vague_location_texas",
+      "description": "User mentions Texas panhandle without exact coords",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "marginal",
+          "soil"
+        ],
+        "missingTools": [
+          "resolve_location",
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "",
+      "toolTrace": []
+    },
+    {
+      "name": "find_nearby_business",
+      "description": "User at good site wants to find farm supply stores",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "supply",
+          "nearby"
+        ],
+        "missingTools": [
+          "find_nearby_business"
+        ]
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "",
+      "toolTrace": []
+    }
+  ]
+}

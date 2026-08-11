@@ -1,0 +1,99 @@
+# Eval golden test cases for Mireye Farm demo
+# Run with: npm run eval (requires MIREYE_MODE=mock)
+#
+# Each case tests the /v1/agent/message endpoint behavior.
+# - question: text input to the agent
+# - expected_tools: which tool(s) should fire (subset match)
+# - expected_facts: substrings that must appear in the reply
+# - location_hint: optional lat/lon to set in session before asking
+
+cases:
+  # Case 1: Good farm plot - Warwick, NY (41.0, -74.0)
+  - name: "good_site_warwick_ny"
+    description: "NYC-area good farm plot with low flood risk and decent soil"
+    session_id: "eval-session-1"
+    location_hint: { lat: 41.0, lon: -74.0 }
+    question: "Is this land in Warwick NY suitable for growing vegetables?"
+    expected_tools: ["check_site_suitability"]
+    expected_facts:
+      - "well-suited"
+      - "flood"
+      - "loam"
+    expected_verdict: "suitable"
+
+  # Case 2: Flood-zone example - Plaquemines Parish, LA (29.0, -90.0)
+  - name: "flood_zone_louisiana"
+    description: "High flood risk area, unsuitable for most farming"
+    session_id: "eval-session-2"
+    location_hint: { lat: 29.0, lon: -90.0 }
+    question: "Can I grow crops here in Plaquemines Parish?"
+    expected_tools: ["check_site_suitability"]
+    expected_facts:
+      - "unsuitable"
+      - "flood"
+      - "Zone AE"
+    expected_verdict: "unsuitable"
+
+  # Case 3: Marginal soil - Texas panhandle (36.0, -100.0)
+  - name: "marginal_soil_texas"
+    description: "Marginal soil conditions requiring amendment"
+    session_id: "eval-session-3"
+    location_hint: { lat: 36.0, lon: -100.0 }
+    question: "What's the soil quality like in Hemphill County Texas?"
+    expected_tools: ["check_site_suitability"]
+    expected_facts:
+      - "marginal"
+      - "sandy loam"
+      - "organic matter"
+    expected_verdict: "marginal"
+
+  # Case 4: Vague location - should trigger resolve_location
+  - name: "vague_location_no_coords"
+    description: "User mentions a place name without coordinates - should geocode first"
+    session_id: "eval-session-4"
+    question: "Is Warwick New York good for farming?"
+    expected_tools: ["resolve_location", "check_site_suitability"]
+    expected_facts:
+      - "Warwick"
+      - "well-suited"
+
+  # Case 5: Missing location info - should ask clarifying question or resolve
+  - name: "missing_location_generic"
+    description: "User asks about farming without specifying where"
+    session_id: "eval-session-5"
+    question: "What do I need to know about growing tomatoes?"
+    expected_tools: []
+    expected_facts:
+      - "location"
+      - "where"
+
+  # Case 6: Another vague place name - Louisiana delta
+  - name: "vague_location_louisiana"
+    description: "User mentions Louisiana delta region without coords"
+    session_id: "eval-session-6"
+    question: "Tell me about farming in the Louisiana delta near New Orleans"
+    expected_tools: ["resolve_location", "check_site_suitability"]
+    expected_facts:
+      - "flood"
+      - "unsuitable"
+
+  # Case 7: Texas panhandle by name
+  - name: "vague_location_texas"
+    description: "User mentions Texas panhandle without exact coords"
+    session_id: "eval-session-7"
+    question: "How's the land around Hemphill County for agriculture?"
+    expected_tools: ["resolve_location", "check_site_suitability"]
+    expected_facts:
+      - "marginal"
+      - "soil"
+
+  # Case 8: Direct coords but asking about nearby businesses
+  - name: "find_nearby_business"
+    description: "User at good site wants to find farm supply stores"
+    session_id: "eval-session-8"
+    location_hint: { lat: 41.0, lon: -74.0 }
+    question: "Where can I buy seeds and fertilizer near here?"
+    expected_tools: ["find_nearby_business"]
+    expected_facts:
+      - "farm supply"
+      - "nearby"
