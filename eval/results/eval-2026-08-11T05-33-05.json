@@ -1,0 +1,204 @@
+{
+  "timestamp": "2026-08-11T05:33:05.526Z",
+  "summary": {
+    "total": 8,
+    "passed": 0,
+    "failed": 8,
+    "accuracy": 0,
+    "avgLatencyMs": 171,
+    "totalToolCalls": 0,
+    "estimatedCostUsd": 0.016,
+    "totalTimeMs": 1372
+  },
+  "costEstimates": {
+    "sarvam_chat": 0.002,
+    "sarvam_stt": 0.005,
+    "sarvam_tts": 0.003,
+    "mireye_ask": 0.01,
+    "mireye_geocode": 0.005,
+    "mireye_fetch": 0.008,
+    "mireye_proximity": 0.01,
+    "places_nearby": 0.02
+  },
+  "cases": [
+    {
+      "name": "good_site_warwick_ny",
+      "description": "NYC-area good farm plot with low flood risk and decent soil",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "suitable",
+          "flood",
+          "loam"
+        ],
+        "missingTools": [
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 496,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Sarvam chat completion failed: 403 {\"error\":{\"message\":\"Invalid or missing authentication credentials\",\"code\":\"invalid_api_key_error\",\"request_id\":\"20260811_0945f625-2649-461a-b91d-120cbab25225\"}}",
+      "toolTrace": []
+    },
+    {
+      "name": "flood_zone_louisiana",
+      "description": "High flood risk area, unsuitable for most farming",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "unsuitable",
+          "flood",
+          "Zone AE"
+        ],
+        "missingTools": [
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 247,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Sarvam chat completion failed: 403 {\"error\":{\"message\":\"Invalid or missing authentication credentials\",\"code\":\"invalid_api_key_error\",\"request_id\":\"20260811_f87c5c91-ed2d-44a4-b8ca-601698ecf40d\"}}",
+      "toolTrace": []
+    },
+    {
+      "name": "marginal_soil_texas",
+      "description": "Marginal soil conditions requiring amendment",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "marginal",
+          "sandy loam",
+          "organic matter"
+        ],
+        "missingTools": [
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 113,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Sarvam chat completion failed: 403 {\"error\":{\"message\":\"Invalid or missing authentication credentials\",\"code\":\"invalid_api_key_error\",\"request_id\":\"20260811_c32aa466-b193-4611-b166-9166d8c682f5\"}}",
+      "toolTrace": []
+    },
+    {
+      "name": "vague_location_no_coords",
+      "description": "User mentions a place name without coordinates - should geocode first",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "Warwick",
+          "suitable"
+        ],
+        "missingTools": [
+          "resolve_location",
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 156,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Sarvam chat completion failed: 403 {\"error\":{\"message\":\"Invalid or missing authentication credentials\",\"code\":\"invalid_api_key_error\",\"request_id\":\"20260811_c954eb2b-69ad-4761-8a0e-3477e3db9c75\"}}",
+      "toolTrace": []
+    },
+    {
+      "name": "missing_location_generic",
+      "description": "User asks about farming without specifying where",
+      "passed": false,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [],
+        "factsMissing": [
+          "location",
+          "where"
+        ]
+      },
+      "latencyMs": 95,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Sarvam chat completion failed: 403 {\"error\":{\"message\":\"Invalid or missing authentication credentials\",\"code\":\"invalid_api_key_error\",\"request_id\":\"20260811_da197189-b089-4f14-ada8-89afed7dc078\"}}",
+      "toolTrace": []
+    },
+    {
+      "name": "vague_location_louisiana",
+      "description": "User mentions Louisiana delta region without coords",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "flood",
+          "unsuitable"
+        ],
+        "missingTools": [
+          "resolve_location",
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 86,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Sarvam chat completion failed: 403 {\"error\":{\"message\":\"Invalid or missing authentication credentials\",\"code\":\"invalid_api_key_error\",\"request_id\":\"20260811_a39b2d36-3687-43ad-a9c0-a6af2d11fb32\"}}",
+      "toolTrace": []
+    },
+    {
+      "name": "vague_location_texas",
+      "description": "User mentions Texas panhandle without exact coords",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "marginal",
+          "soil"
+        ],
+        "missingTools": [
+          "resolve_location",
+          "check_site_suitability"
+        ]
+      },
+      "latencyMs": 81,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Sarvam chat completion failed: 403 {\"error\":{\"message\":\"Invalid or missing authentication credentials\",\"code\":\"invalid_api_key_error\",\"request_id\":\"20260811_995a9d4d-155a-4dfe-a258-df25dd53dfbe\"}}",
+      "toolTrace": []
+    },
+    {
+      "name": "find_nearby_business",
+      "description": "User at good site wants to find farm supply stores",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "supply",
+          "nearby"
+        ],
+        "missingTools": [
+          "find_nearby_business"
+        ]
+      },
+      "latencyMs": 93,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Sarvam chat completion failed: 403 {\"error\":{\"message\":\"Invalid or missing authentication credentials\",\"code\":\"invalid_api_key_error\",\"request_id\":\"20260811_594975b7-ff2f-4980-946a-049cc3e479c9\"}}",
+      "toolTrace": []
+    }
+  ]
+}

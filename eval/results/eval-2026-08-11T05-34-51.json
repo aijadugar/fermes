@@ -1,0 +1,518 @@
+{
+  "timestamp": "2026-08-11T05:34:51.367Z",
+  "summary": {
+    "total": 8,
+    "passed": 5,
+    "failed": 3,
+    "accuracy": 62.5,
+    "avgLatencyMs": 37,
+    "totalToolCalls": 9,
+    "estimatedCostUsd": 0.079,
+    "totalTimeMs": 299
+  },
+  "costEstimates": {
+    "sarvam_chat": 0.002,
+    "sarvam_stt": 0.005,
+    "sarvam_tts": 0.003,
+    "mireye_ask": 0.01,
+    "mireye_geocode": 0.005,
+    "mireye_fetch": 0.008,
+    "mireye_proximity": 0.01,
+    "places_nearby": 0.02
+  },
+  "cases": [
+    {
+      "name": "good_site_warwick_ny",
+      "description": "NYC-area good farm plot with low flood risk and decent soil",
+      "passed": false,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [
+          "flood",
+          "loam"
+        ],
+        "factsMissing": [
+          "suitable"
+        ],
+        "missingTools": []
+      },
+      "latencyMs": 0,
+      "toolCalls": [
+        "check_site_suitability"
+      ],
+      "estimatedCost": 0.01,
+      "error": null,
+      "reply": "This site in Warwick, NY is well-suited for small-scale farming. The land has minimal flood risk (Zone X), loam soil with good drainage, and a moderate growing season. Elevation around 320m provides good air drainage.",
+      "toolTrace": [
+        {
+          "tool": "check_site_suitability",
+          "args": {
+            "lat": 41,
+            "lon": -74
+          },
+          "result": {
+            "facts": {
+              "elevation": {
+                "value": 320,
+                "unit": "m",
+                "source": "USGS NED 1m DEM (2017)"
+              },
+              "flood_zone": {
+                "value": "X",
+                "description": "Minimal flood risk",
+                "source": "FEMA NFHL (2023)"
+              },
+              "soil_type": {
+                "value": "loam",
+                "ph": 6.5,
+                "organic_matter": 3.2,
+                "source": "USDA SSURGO"
+              }
+            },
+            "cited": {
+              "answer": "This site in Warwick, NY is well-suited for small-scale farming. The land has minimal flood risk (Zone X), loam soil with good drainage, and a moderate growing season. Elevation around 320m provides good air drainage.",
+              "sources": [
+                {
+                  "title": "USGS National Elevation Dataset",
+                  "url": "https://usgs.gov/ned"
+                },
+                {
+                  "title": "FEMA Flood Maps",
+                  "url": "https://msc.fema.gov"
+                },
+                {
+                  "title": "USDA Soil Survey",
+                  "url": "https://websoilsurvey.nrcs.usda.gov"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "flood_zone_louisiana",
+      "description": "High flood risk area, unsuitable for most farming",
+      "passed": true,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [
+          "unsuitable",
+          "flood",
+          "Zone AE"
+        ],
+        "factsMissing": [],
+        "missingTools": []
+      },
+      "latencyMs": 0,
+      "toolCalls": [
+        "check_site_suitability"
+      ],
+      "estimatedCost": 0.01,
+      "error": null,
+      "reply": "This site in Plaquemines Parish is unsuitable for most farming due to extreme flood risk. The land sits below sea level (-1.2m), is in FEMA Zone AE requiring elevated structures, and faces regular hurricane threats. Consider raised-bed aquaculture instead.",
+      "toolTrace": [
+        {
+          "tool": "check_site_suitability",
+          "args": {
+            "lat": 29,
+            "lon": -90
+          },
+          "result": {
+            "facts": {
+              "elevation": {
+                "value": -1.2,
+                "unit": "m",
+                "source": "USGS NED 1m DEM (2019)"
+              },
+              "flood_zone": {
+                "value": "AE",
+                "description": "High-risk flood zone, base flood elevation required",
+                "source": "FEMA NFHL (2023)"
+              },
+              "soil_type": {
+                "value": "clay",
+                "ph": 5.8,
+                "organic_matter": 4.1,
+                "source": "USDA SSURGO"
+              }
+            },
+            "cited": {
+              "answer": "This site in Plaquemines Parish is unsuitable for most farming due to extreme flood risk. The land sits below sea level (-1.2m), is in FEMA Zone AE requiring elevated structures, and faces regular hurricane threats. Consider raised-bed aquaculture instead.",
+              "sources": [
+                {
+                  "title": "FEMA Flood Insurance Rate Maps",
+                  "url": "https://msc.fema.gov"
+                },
+                {
+                  "title": "USGS Coastal Elevation Data",
+                  "url": "https://usgs.gov/coastal"
+                },
+                {
+                  "title": "Louisiana Sea Grant",
+                  "url": "https://laseagrant.org"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "marginal_soil_texas",
+      "description": "Marginal soil conditions requiring amendment",
+      "passed": true,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [
+          "marginal",
+          "sandy loam",
+          "organic matter"
+        ],
+        "factsMissing": [],
+        "missingTools": []
+      },
+      "latencyMs": 0,
+      "toolCalls": [
+        "check_site_suitability"
+      ],
+      "estimatedCost": 0.01,
+      "error": null,
+      "reply": "This Texas panhandle site has marginal conditions for farming. While flood risk is low and sun exposure is excellent, the sandy loam soil has very low organic matter (1.1%) and alkaline pH (7.8). Success would require significant soil amendment, drip irrigation, and drought-tolerant crops.",
+      "toolTrace": [
+        {
+          "tool": "check_site_suitability",
+          "args": {
+            "lat": 36,
+            "lon": -100
+          },
+          "result": {
+            "facts": {
+              "elevation": {
+                "value": 780,
+                "unit": "m",
+                "source": "USGS NED 1m DEM (2018)"
+              },
+              "flood_zone": {
+                "value": "X",
+                "description": "Minimal flood risk",
+                "source": "FEMA NFHL (2022)"
+              },
+              "soil_type": {
+                "value": "sandy loam",
+                "ph": 7.8,
+                "organic_matter": 1.1,
+                "source": "USDA SSURGO"
+              }
+            },
+            "cited": {
+              "answer": "This Texas panhandle site has marginal conditions for farming. While flood risk is low and sun exposure is excellent, the sandy loam soil has very low organic matter (1.1%) and alkaline pH (7.8). Success would require significant soil amendment, drip irrigation, and drought-tolerant crops.",
+              "sources": [
+                {
+                  "title": "USDA Web Soil Survey",
+                  "url": "https://websoilsurvey.nrcs.usda.gov"
+                },
+                {
+                  "title": "Texas A&M AgriLife Extension",
+                  "url": "https://agrilife.tamu.edu"
+                },
+                {
+                  "title": "High Plains Underground Water District",
+                  "url": "https://hpud.org"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "vague_location_no_coords",
+      "description": "User mentions a place name without coordinates - should geocode first",
+      "passed": false,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [
+          "Warwick"
+        ],
+        "factsMissing": [
+          "suitable"
+        ],
+        "missingTools": []
+      },
+      "latencyMs": 0,
+      "toolCalls": [
+        "resolve_location",
+        "check_site_suitability"
+      ],
+      "estimatedCost": 0.015,
+      "error": null,
+      "reply": "This site in Warwick, NY is well-suited for small-scale farming. The land has minimal flood risk (Zone X), loam soil with good drainage, and a moderate growing season. Elevation around 320m provides good air drainage.",
+      "toolTrace": [
+        {
+          "tool": "resolve_location",
+          "args": {
+            "address": "Warwick, NY"
+          },
+          "result": {
+            "formatted_address": "Warwick, NY 10990, USA",
+            "lat": 41,
+            "lon": -74,
+            "parcel_id": "ORANGE-NY-234-567",
+            "confidence": "high",
+            "source": "Orange County NY Tax Assessor"
+          }
+        },
+        {
+          "tool": "check_site_suitability",
+          "args": {
+            "lat": 41,
+            "lon": -74
+          },
+          "result": {
+            "facts": {
+              "elevation": {
+                "value": 320,
+                "unit": "m",
+                "source": "USGS NED 1m DEM (2017)"
+              },
+              "flood_zone": {
+                "value": "X",
+                "description": "Minimal flood risk",
+                "source": "FEMA NFHL (2023)"
+              },
+              "soil_type": {
+                "value": "loam",
+                "ph": 6.5,
+                "organic_matter": 3.2,
+                "source": "USDA SSURGO"
+              }
+            },
+            "cited": {
+              "answer": "This site in Warwick, NY is well-suited for small-scale farming. The land has minimal flood risk (Zone X), loam soil with good drainage, and a moderate growing season. Elevation around 320m provides good air drainage.",
+              "sources": [
+                {
+                  "title": "USGS National Elevation Dataset",
+                  "url": "https://usgs.gov/ned"
+                },
+                {
+                  "title": "FEMA Flood Maps",
+                  "url": "https://msc.fema.gov"
+                },
+                {
+                  "title": "USDA Soil Survey",
+                  "url": "https://websoilsurvey.nrcs.usda.gov"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "missing_location_generic",
+      "description": "User asks about farming without specifying where",
+      "passed": true,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [
+          "location",
+          "where"
+        ],
+        "factsMissing": []
+      },
+      "latencyMs": 0,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "To give you specific advice about growing, I need to know your location. Where are you planning to grow? Different regions have different climate and soil considerations.",
+      "toolTrace": []
+    },
+    {
+      "name": "vague_location_louisiana",
+      "description": "User mentions Louisiana delta region without coords",
+      "passed": true,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [
+          "flood",
+          "unsuitable"
+        ],
+        "factsMissing": [],
+        "missingTools": []
+      },
+      "latencyMs": 0,
+      "toolCalls": [
+        "resolve_location",
+        "check_site_suitability"
+      ],
+      "estimatedCost": 0.015,
+      "error": null,
+      "reply": "This site in Plaquemines Parish is unsuitable for most farming due to extreme flood risk. The land sits below sea level (-1.2m), is in FEMA Zone AE requiring elevated structures, and faces regular hurricane threats. Consider raised-bed aquaculture instead.",
+      "toolTrace": [
+        {
+          "tool": "resolve_location",
+          "args": {
+            "address": "Louisiana delta near New Orleans"
+          },
+          "result": {
+            "formatted_address": "Plaquemines Parish, LA 70083, USA",
+            "lat": 29,
+            "lon": -90,
+            "parcel_id": "PLAQ-LA-891-234",
+            "confidence": "medium",
+            "source": "Plaquemines Parish Tax Assessor"
+          }
+        },
+        {
+          "tool": "check_site_suitability",
+          "args": {
+            "lat": 29,
+            "lon": -90
+          },
+          "result": {
+            "facts": {
+              "elevation": {
+                "value": -1.2,
+                "unit": "m",
+                "source": "USGS NED 1m DEM (2019)"
+              },
+              "flood_zone": {
+                "value": "AE",
+                "description": "High-risk flood zone, base flood elevation required",
+                "source": "FEMA NFHL (2023)"
+              },
+              "soil_type": {
+                "value": "clay",
+                "ph": 5.8,
+                "organic_matter": 4.1,
+                "source": "USDA SSURGO"
+              }
+            },
+            "cited": {
+              "answer": "This site in Plaquemines Parish is unsuitable for most farming due to extreme flood risk. The land sits below sea level (-1.2m), is in FEMA Zone AE requiring elevated structures, and faces regular hurricane threats. Consider raised-bed aquaculture instead.",
+              "sources": [
+                {
+                  "title": "FEMA Flood Insurance Rate Maps",
+                  "url": "https://msc.fema.gov"
+                },
+                {
+                  "title": "USGS Coastal Elevation Data",
+                  "url": "https://usgs.gov/coastal"
+                },
+                {
+                  "title": "Louisiana Sea Grant",
+                  "url": "https://laseagrant.org"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "vague_location_texas",
+      "description": "User mentions Texas panhandle without exact coords",
+      "passed": true,
+      "checks": {
+        "toolsMatch": true,
+        "factsPresent": [
+          "marginal",
+          "soil"
+        ],
+        "factsMissing": [],
+        "missingTools": []
+      },
+      "latencyMs": 0,
+      "toolCalls": [
+        "resolve_location",
+        "check_site_suitability"
+      ],
+      "estimatedCost": 0.015,
+      "error": null,
+      "reply": "This Texas panhandle site has marginal conditions for farming. While flood risk is low and sun exposure is excellent, the sandy loam soil has very low organic matter (1.1%) and alkaline pH (7.8). Success would require significant soil amendment, drip irrigation, and drought-tolerant crops.",
+      "toolTrace": [
+        {
+          "tool": "resolve_location",
+          "args": {
+            "address": "Hemphill County, TX"
+          },
+          "result": {
+            "formatted_address": "Hemphill County, TX 790xx, USA",
+            "lat": 36,
+            "lon": -100,
+            "parcel_id": "HEMP-TX-456-789",
+            "confidence": "low",
+            "source": "Hemphill County Tax Assessor"
+          }
+        },
+        {
+          "tool": "check_site_suitability",
+          "args": {
+            "lat": 36,
+            "lon": -100
+          },
+          "result": {
+            "facts": {
+              "elevation": {
+                "value": 780,
+                "unit": "m",
+                "source": "USGS NED 1m DEM (2018)"
+              },
+              "flood_zone": {
+                "value": "X",
+                "description": "Minimal flood risk",
+                "source": "FEMA NFHL (2022)"
+              },
+              "soil_type": {
+                "value": "sandy loam",
+                "ph": 7.8,
+                "organic_matter": 1.1,
+                "source": "USDA SSURGO"
+              }
+            },
+            "cited": {
+              "answer": "This Texas panhandle site has marginal conditions for farming. While flood risk is low and sun exposure is excellent, the sandy loam soil has very low organic matter (1.1%) and alkaline pH (7.8). Success would require significant soil amendment, drip irrigation, and drought-tolerant crops.",
+              "sources": [
+                {
+                  "title": "USDA Web Soil Survey",
+                  "url": "https://websoilsurvey.nrcs.usda.gov"
+                },
+                {
+                  "title": "Texas A&M AgriLife Extension",
+                  "url": "https://agrilife.tamu.edu"
+                },
+                {
+                  "title": "High Plains Underground Water District",
+                  "url": "https://hpud.org"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "find_nearby_business",
+      "description": "User at good site wants to find farm supply stores",
+      "passed": false,
+      "checks": {
+        "toolsMatch": false,
+        "factsPresent": [],
+        "factsMissing": [
+          "supply",
+          "nearby"
+        ],
+        "missingTools": [
+          "find_nearby_business"
+        ]
+      },
+      "latencyMs": 296,
+      "toolCalls": [],
+      "estimatedCost": 0.002,
+      "error": null,
+      "reply": "Error: Places search failed: 400 {\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"API key not valid. Please pass a valid API key.\",\n    \"status\": \"INVALID_ARGUMENT\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"API_KEY_INVALID\",\n        \"domain\": \"googleapis.com\",\n        \"metadata\": {\n          \"service\": \"places.googleapis.com\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\",\n        \"locale\": \"en-US\",\n        \"message\": \"",
+      "toolTrace": []
+    }
+  ]
+}

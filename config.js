@@ -61,18 +61,19 @@ export const config = {
   },
 
   sarvam: {
-    apiKey: required('SARVAM_API_KEY'),
+    apiKey: optional('SARVAM_API_KEY', 'mock_key_for_eval'),
     baseUrl: optional('SARVAM_BASE_URL', 'https://api.sarvam.ai'),
     chatModel: optional('SARVAM_CHAT_MODEL', 'sarvam-105b'),
+    mockMode: optional('SARVAM_MODE', 'live') === 'mock',
   },
 
   mireye: {
-    apiKey: required('MIREYE_API_KEY'),
+    apiKey: optional('MIREYE_API_KEY', 'mock_key_for_eval'),
     baseUrl: optional('MIREYE_BASE_URL', 'https://api.mireye.com'),
     mode: optional('MIREYE_MODE', 'live'),
   },
 
   places: {
-    apiKey: required('GOOGLE_PLACES_API_KEY'),
+    apiKey: optional('GOOGLE_PLACES_API_KEY', 'mock_key_for_eval'),
   },
 };
