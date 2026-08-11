@@ -7,6 +7,7 @@ import { config } from './config.js';
 import { logger } from './logger.js';
 import { store } from './store.js';
 import { agentRouter } from './agent.js';
+import { siteReportRouter } from './site-report.js';
 import { authMiddleware, logAuthStatus } from './middleware/auth.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 
@@ -72,6 +73,7 @@ export function createApp() {
   });
 
   app.use('/v1/agent', agentLimiter, authMiddleware, agentRouter);
+  app.use('/v1', agentLimiter, authMiddleware, siteReportRouter);
   app.use(notFoundHandler);
   app.use(errorHandler);
   return app;

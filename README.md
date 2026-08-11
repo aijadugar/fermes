@@ -20,6 +20,35 @@ successfully during development of this project — not just claimed.
 - **Session store** — pluggable: in-memory (with TTL) by default, Redis when
   `REDIS_URL` is set.
 
+## Eval
+
+Run the eval harness to measure accuracy, latency, tool-call count, and estimated cost:
+
+```bash
+npm run eval
+```
+
+This runs test cases from `eval/golden.yaml` through the agent and produces a summary table:
+
+```
+================================================================================
+EVAL SUMMARY
+================================================================================
+Total Cases:      8
+Passed:           8
+Failed:           0
+Accuracy:         100.0%
+Avg Latency:      0ms
+Total Tool Calls: 10
+Est. Total Cost:  $0.0990
+Total Time:       3ms
+================================================================================
+```
+
+Raw results are saved as timestamped JSON files in `eval/results/` for inspection.
+
+---
+
 ## Demo mode (no API key needed)
 
 Set `MIREYE_MODE=mock` to run the demo without a real Mireye API key. Mock mode returns
@@ -55,6 +84,45 @@ curl -X POST http://localhost:3000/v1/agent/message \
 
 If you query a location without a fixture, you'll get a helpful message listing the
 available fixture coordinates.
+
+## Site Report Endpoint
+
+Get a comprehensive site suitability report with cited facts and a derived verdict:
+
+```bash
+GET /v1/site-report?lat=&lon=&question=
+```
+
+| Param | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `lat` | yes | - | Latitude coordinate |
+| `lon` | yes | - | Longitude coordinate |
+| `question` | no | "Is this a good spot to grow crops?" | Natural language question about the site |
+
+Response shape:
+```json
+{
+  "location": { "lat": 41.0, "lon": -74.0 },
+  "facts": [
+    { "field": "elevation", "value": 320, "unit": "m", "source": "USGS NED 1m DEM (2017)" },
+    { "field": "flood_zone", "value": "X", "description": "Minimal flood risk", "source": "FEMA NFHL (2023)" },
+    { "field": "soil_type", "value": "loam", "ph": 6.5, "organic_matter": 3.2, "source": "USDA SSURGO" }
+  ],
+  "summary": "This site in Warwick, NY is well-suited for small-scale farming...",
+  "summary_source": "https://usgs.gov/ned",
+  "verdict": "suitable"
+}
+```
+
+The `verdict` field is derived from factual data (flood zone, soil quality, elevation) rather than just echoing the LLM's opinion.
+
+### Sample curl command
+
+```bash
+# NYC-area good farm plot (41.0, -74.0)
+curl -X GET "http://localhost:3000/v1/site-report?lat=41.0&lon=-74.0" \
+  -H "Authorization: Bearer your-api-key"
+```
 
 ---
 
