@@ -38,13 +38,22 @@ export async function mireyeAsk(question, { lat, lon, address } = {}) {
     if (lat === undefined || lon === undefined) {
       return { error: getFixtureListMessage() };
     }
+
     const fixture = findFixture(lat, lon);
+
     if (!fixture) {
       return { error: getFixtureListMessage() };
     }
+
     return FIXTURES[`${fixture.lat},${fixture.lon}`].askResponse;
   }
-  return call('/v1/ask', { question, lat, lon, address }, 'POST');
+
+  return call('/v1/ask', {
+    question,
+    lat,
+    lng: lon,
+    address,
+  }, 'POST');
 }
 
 /** Resolve a loose address/description into canonical coordinates + parcel. */

@@ -29,8 +29,7 @@ siteReportRouter.get('/site-report', async (req, res, next) => {
     // Default question if not provided
     const userQuestion = question || 'Is this a good spot to grow crops?';
 
-    // Fetch field data (elevation, flood_zone, soil_type)
-    const fieldsData = await mireyeFetchFields(latitude, longitude, ['elevation', 'flood_zone', 'soil_type']);
+    const fieldsData = await mireyeFetchFields(latitude, longitude, ['elevation']);
 
     // Check for error response (e.g., no mock fixture available)
     if (fieldsData.error) {
