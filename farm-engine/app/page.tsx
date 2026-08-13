@@ -30,6 +30,8 @@ import GlobalErrands, {
   ErrandsSelection,
 } from '@/components/Errands'
 
+import FermesAssistant from '@/components/FermesAssistant'
+
 import {
   AgentResponse,
   BusinessCandidate,
@@ -1173,6 +1175,7 @@ function Investigation({
           </div>
         )}
       </main>
+      <FermesAssistant />
     </Shell>
   )
 }
@@ -1623,6 +1626,7 @@ function Report({
           </p>
         </footer>
       </main>
+      <FermesAssistant />
     </Shell>
   )
 }
