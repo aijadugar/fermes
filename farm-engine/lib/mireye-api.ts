@@ -39,7 +39,7 @@ export type SiteReport = {
   [key: string]: unknown
 }
 
-const apiUrl = () => process.env.NEXT_PUBLIC_MIREYE_API_URL || 'http://localhost:3000'
+const apiUrl = () => process.env.NEXT_PUBLIC_MIREYE_API_URL
 const headers = (): HeadersInit => {
   const key = process.env.NEXT_PUBLIC_MIREYE_API_KEY
   return key ? { Authorization: `Bearer ${key}` } : {}
@@ -76,10 +76,29 @@ export async function sendAgentAudio(sessionId: string, audio: Blob, languageCod
   return parse<AgentResponse>(await fetch(`${apiUrl()}/v1/agent/message`, { method: 'POST', headers: headers(), body: form }))
 }
 
-export async function getSiteReport(lat: number, lon: number, question?: string) {
-  const params = new URLSearchParams({ lat: String(lat), lon: String(lon) })
-  if (question?.trim()) params.set('question', question.trim())
-  return parse<SiteReport>(await fetch(`${apiUrl()}/v1/site-report?${params}`, { headers: headers(), cache: 'no-store' }))
+export async function getSiteReport(
+  lat: number,
+  lon: number,
+  question?: string
+) {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lon: String(lon),
+  })
+
+  if (question?.trim()) {
+    params.set('question', question.trim())
+  }
+
+  return parse<SiteReport>(
+    await fetch(
+      `${apiUrl()}/v1/site-report?${params}`,
+      {
+        headers: headers(),
+        cache: 'no-store',
+      }
+    )
+  )
 }
 
 export { apiUrl }

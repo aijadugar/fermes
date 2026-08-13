@@ -1005,7 +1005,7 @@ function Investigation({
   country,
   coords,
   question,
-  response,
+  report,
   error,
   onBack,
   onReport,
@@ -1014,44 +1014,20 @@ function Investigation({
   country: Country
   coords: Coordinates
   question: string
-  response: AgentResponse | null
+  report: SiteReport | null
   error: string
   onBack: () => void
   onReport: () => void
   globalSelection: ErrandsSelection | null
 }) {
-  const businesses = useMemo(
-    () =>
-      traceBusinesses(
-        response?.tool_trace || []
-      ),
-    [response]
-  )
-
   return (
-    <Shell
-      country={country}
-      onChange={onBack}
-      online={null}
-    >
+    <Shell country={country} onChange={onBack} online={null}>
       <main className="mx-auto w-full max-w-5xl px-4 pb-20 pt-10 sm:px-6 lg:px-8">
         <button
           onClick={onBack}
-          className="
-            mb-8
-            inline-flex items-center gap-2
-            rounded-lg
-            border-2 border-black
-            bg-white
-            px-3 py-2
-            text-sm font-black
-            transition
-            hover:bg-yellow-400
-            hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]
-          "
+          className="mb-8 inline-flex items-center gap-2 rounded-lg border-2 border-black bg-white px-3 py-2 text-sm font-black transition hover:bg-yellow-400 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
         >
           <ArrowLeft className="size-4" />
-
           Back to investigation
         </button>
 
@@ -1059,235 +1035,102 @@ function Investigation({
           <div className="mb-4 inline-flex rounded-full border-2 border-black bg-yellow-400 px-3 py-1.5 text-xs font-black uppercase tracking-widest">
             Fermes Investigation
           </div>
-
           <h1 className="text-4xl font-black uppercase tracking-tight sm:text-5xl">
             Site Intelligence
           </h1>
-
           <p className="mt-3 font-mono text-sm font-bold text-gray-500">
             {coords.lat}, {coords.lon}
           </p>
-
-          <p className="mt-1 text-sm font-bold">
-            {countryNames[country]}
-          </p>
+          <p className="mt-1 text-sm font-bold">{countryNames[country]}</p>
         </div>
 
-        {globalSelection && (
-          <section
-            className="
-              mb-5
-              rounded-2xl
-              border-2 border-black
-              bg-yellow-50
-              p-5
-              shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]
-            "
-          >
-            <div className="text-xs font-black uppercase tracking-[0.18em]">
-              Session preferences
-            </div>
-
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              <div>
-                <div className="text-xs font-medium text-gray-500">
-                  Country
-                </div>
-
-                <div className="mt-1 font-black">
-                  {globalSelection.country ===
-                  'usa'
-                    ? 'United States'
-                    : 'Canada'}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-xs font-medium text-gray-500">
-                  Language
-                </div>
-
-                <div className="mt-1 font-black">
-                  {globalSelection.language ===
-                  'fr'
-                    ? 'French'
-                    : 'English'}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-xs font-medium text-gray-500">
-                  Comfort
-                </div>
-
-                <div className="mt-1 font-black capitalize">
-                  {globalSelection.comfort}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        <section
-          className="
-            mb-5
-            rounded-2xl
-            border-2 border-black
-            bg-white
-            p-5
-            shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]
-          "
-        >
+        <section className="mb-5 rounded-2xl border-2 border-black bg-white p-5 shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
           <div className="text-xs font-black uppercase tracking-[0.18em] text-gray-500">
             Your question
           </div>
-
-          <p className="mt-3 text-lg font-bold leading-8">
-            {question}
-          </p>
+          <p className="mt-3 text-lg font-bold leading-8">{question}</p>
         </section>
 
         {error ? (
           <div className="mb-5 rounded-2xl border-2 border-red-600 bg-red-50 p-5">
-            <h2 className="font-black uppercase">
-              Fermes API is unavailable
-            </h2>
-
-            <p className="mt-2 text-sm font-medium text-gray-600">
-              {error}
-            </p>
-
+            <h2 className="font-black uppercase">Fermes API is unavailable</h2>
+            <p className="mt-2 text-sm font-medium text-gray-600">{error}</p>
             <p className="mt-2 text-xs font-medium text-gray-500">
-              Please check that the backend is running
-              at {apiUrl()}
+              Please check that the backend is running at {apiUrl()}
             </p>
           </div>
-        ) : response ? (
+        ) : report ? (
           <>
-            <Timeline
-              trace={response.tool_trace || []}
-            />
-
-            {response.transcript &&
-              response.transcript !==
-                question && (
-                <section
-                  className="
-                    mt-5
-                    rounded-2xl
-                    border-2 border-black
-                    bg-white
-                    p-5
-                  "
-                >
-                  <div className="text-xs font-black uppercase tracking-[0.18em] text-gray-500">
-                    Transcribed question
-                  </div>
-
-                  <blockquote className="mt-3 border-l-4 border-yellow-400 pl-4 text-sm font-medium leading-7 text-gray-600">
-                    {response.transcript}
-                  </blockquote>
-                </section>
-              )}
-
             <section
-              className="
-                mt-5
-                rounded-2xl
-                border-2 border-black
-                bg-white
-                p-6
-                shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]
-              "
+              className={`mb-5 rounded-2xl border-2 border-black p-6 shadow-[7px_7px_0px_0px_rgba(0,0,0,1)] ${
+                report.verdict === 'suitable'
+                  ? 'bg-green-300'
+                  : report.verdict === 'marginal'
+                    ? 'bg-yellow-400'
+                    : 'bg-red-300'
+              }`}
             >
+              <div className="text-xs font-black uppercase tracking-[0.18em]">
+                Verdict
+              </div>
+              <div className="mt-4 text-4xl font-black uppercase">
+                {report.verdict || 'Unknown'}
+              </div>
+            </section>
+
+            <section className="mb-5 rounded-2xl border-2 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
               <div className="mb-5 flex items-center gap-3">
-                <div
-                  className="
-                    flex h-10 w-10
-                    items-center justify-center
-                    rounded-lg
-                    border-2 border-black
-                    bg-yellow-400
-                  "
-                >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-black bg-yellow-400">
                   <Sprout className="size-5" />
                 </div>
-
                 <h2 className="text-2xl font-black uppercase">
                   Fermes&apos; assessment
                 </h2>
               </div>
-
               <div className="prose max-w-none text-sm leading-7 prose-headings:font-black prose-p:text-gray-600 prose-strong:text-black prose-li:text-gray-600">
                 <ReactMarkdown>
-                  {response.reply ||
-                    'No response returned.'}
+                  {report.summary || 'No summary returned.'}
                 </ReactMarkdown>
               </div>
+              {report.summary_source && (
+                <p className="mt-4 text-xs font-bold text-gray-500">
+                  Source: {report.summary_source}
+                </p>
+              )}
             </section>
 
-            {response.audio &&
-              typeof response.audio ===
-                'string' && (
-                <section
-                  className="
-                    mt-5
-                    rounded-2xl
-                    border-2 border-black
-                    bg-white
-                    p-5
-                  "
-                >
-                  <div className="mb-3 flex items-center gap-2 font-black uppercase">
-                    <Volume2 className="size-4" />
-
-                    Fermes voice response
-                  </div>
-
-                  <audio
-                    controls
-                    className="w-full"
-                    src={response.audio}
-                  />
-                </section>
-              )}
-
-            {businesses.length > 0 && (
-              <section className="mt-8">
-                <h2 className="mb-4 text-2xl font-black uppercase">
-                  Nearby agricultural businesses
-                </h2>
-
-                <div className="grid gap-3">
-                  {businesses.map(
-                    (business, index) => (
-                      <BusinessCard
-                        key={`${business.name}-${index}`}
-                        business={business}
-                      />
-                    )
-                  )}
+            {report.facts?.length ? (
+              <section className="mb-5 rounded-2xl border-2 border-black bg-white p-6">
+                <h2 className="text-2xl font-black uppercase">Facts</h2>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {report.facts.map((fact, index) => (
+                    <div
+                      key={`${fact.name}-${index}`}
+                      className="rounded-xl border-2 border-black bg-yellow-50 p-4"
+                    >
+                      <div className="text-xs font-black uppercase text-gray-500">
+                        {fact.name || 'Fact'}
+                      </div>
+                      <div className="mt-1 font-black">
+                        {String(fact.value ?? '—')}
+                      </div>
+                      {fact.source && (
+                        <div className="mt-1 text-xs font-medium text-gray-500">
+                          {fact.source}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </section>
-            )}
+            ) : null}
 
-            <section
-              className="
-                mt-5
-                rounded-2xl
-                border-2 border-black
-                bg-white
-                p-5
-              "
-            >
+            <section className="mt-5 rounded-2xl border-2 border-black bg-white p-5">
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-black bg-yellow-400">
                   <MapPin className="size-4" />
                 </div>
-
-                <h2 className="text-2xl font-black uppercase">
-                  Site location
-                </h2>
+                <h2 className="text-2xl font-black uppercase">Site location</h2>
               </div>
 
               <div className="grid gap-4 text-sm sm:grid-cols-3">
@@ -1295,81 +1138,40 @@ function Investigation({
                   <div className="text-xs font-bold uppercase text-gray-500">
                     Latitude
                   </div>
-
                   <div className="mt-1 font-mono font-bold">
-                    {coords.lat}
+                    {report.location?.lat ?? coords.lat}
                   </div>
                 </div>
-
                 <div>
                   <div className="text-xs font-bold uppercase text-gray-500">
                     Longitude
                   </div>
-
                   <div className="mt-1 font-mono font-bold">
-                    {coords.lon}
+                    {report.location?.lon ?? coords.lon}
                   </div>
                 </div>
-
                 <div>
                   <div className="text-xs font-bold uppercase text-gray-500">
                     Country
                   </div>
-
-                  <div className="mt-1 font-bold">
-                    {countryNames[country]}
-                  </div>
+                  <div className="mt-1 font-bold">{countryNames[country]}</div>
                 </div>
               </div>
 
               <button
                 onClick={onReport}
-                className="
-                  mt-6
-                  inline-flex items-center gap-2
-                  rounded-xl
-                  border-2 border-black
-                  bg-yellow-400
-                  px-4 py-2.5
-                  text-sm font-black
-                  shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
-                  transition
-                  hover:bg-yellow-500
-                  active:translate-x-[2px]
-                  active:translate-y-[2px]
-                  active:shadow-none
-                "
+                className="mt-6 inline-flex items-center gap-2 rounded-xl border-2 border-black bg-yellow-400 px-4 py-2.5 text-sm font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition hover:bg-yellow-500 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
               >
                 <FileText className="size-4" />
-
                 Generate detailed site report
               </button>
             </section>
           </>
         ) : (
-          <div
-            className="
-              rounded-2xl
-              border-2 border-black
-              bg-yellow-50
-              p-6
-              text-sm font-bold
-              shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]
-            "
-          >
+          <div className="rounded-2xl border-2 border-black bg-yellow-50 p-6 text-sm font-bold shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
             Fermes is gathering site intelligence...
           </div>
         )}
-
-        <details className="mt-6 rounded-xl border-2 border-black bg-white p-4 text-xs text-gray-500">
-          <summary className="cursor-pointer font-black text-black">
-            Developer details
-          </summary>
-
-          <p className="mt-3 font-mono">
-            POST /v1/agent/message
-          </p>
-        </details>
       </main>
     </Shell>
   )
@@ -1859,6 +1661,9 @@ export default function Page() {
   const [response, setResponse] =
     useState<AgentResponse | null>(null)
 
+  const [reportResult, setReportResult] =
+    useState<SiteReport | null>(null)
+
   const [error, setError] =
     useState('')
 
@@ -1904,6 +1709,29 @@ export default function Page() {
   /* ------------------------------------------------------------------------ */
   /* Submit Investigation                                                    */
   /* ------------------------------------------------------------------------ */
+
+  const submit = async () => {
+  if (!globalSelection) {
+    setError('Please select your language and comfort level first.')
+    return
+  }
+
+  setError('')
+  setResponse(null)
+  setView('investigating')
+
+  try {
+    const result = await getSiteReport(
+      Number(lat),
+      Number(lon),
+      question.trim()
+    )
+
+    setReportResult(result)
+  } catch (e) {
+    setError(errorDetail(e).message)
+  }
+}
 
  const goToReport = () => {
   if (!globalSelection) {
@@ -1955,42 +1783,36 @@ export default function Page() {
   /* ------------------------------------------------------------------------ */
 
   if (view === 'report') {
-  return (
-    <Report
-      country={country}
-      coords={coords}
-      initialQuestion={question}
-      onBack={() =>
-        setView('form')
-      }
-    />
-  )
-}
+    return (
+      <Report
+        country={country}
+        coords={coords}
+        initialQuestion={question}
+        onBack={() =>
+          setView('form')
+        }
+      />
+    )
+  }
 
   /* ------------------------------------------------------------------------ */
   /* Investigation                                                            */
   /* ------------------------------------------------------------------------ */
 
-  if (view === 'investigating') {
-    return (
-      <Investigation
-        country={country}
-        coords={coords}
-        question={question}
-        response={response}
-        error={error}
-        globalSelection={
-          globalSelection
-        }
-        onBack={() =>
-          setView('form')
-        }
-        onReport={() =>
-          setView('report')
-        }
-      />
-    )
-  }
+if (view === 'investigating') {
+  return (
+    <Investigation
+      country={country}
+      coords={coords}
+      question={question}
+      report={reportResult}
+      error={error}
+      globalSelection={globalSelection}
+      onBack={() => setView('form')}
+      onReport={() => setView('report')}
+    />
+  )
+}
 
   /* ------------------------------------------------------------------------ */
   /* Form                                                                     */
@@ -2004,7 +1826,7 @@ export default function Page() {
         setGlobalSelection(null)
         setView('onboarding')
       }}
-      onSubmit={goToReport}
+      onSubmit={submit}
       online={online}
       lat={lat}
       lon={lon}
