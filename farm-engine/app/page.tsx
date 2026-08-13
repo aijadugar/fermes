@@ -1006,6 +1006,7 @@ function Investigation({
   coords,
   question,
   report,
+  response,
   error,
   onBack,
   onReport,
@@ -1015,6 +1016,7 @@ function Investigation({
   coords: Coordinates
   question: string
   report: SiteReport | null
+  response: AgentResponse | null
   error: string
   onBack: () => void
   onReport: () => void
@@ -1711,27 +1713,36 @@ export default function Page() {
   /* ------------------------------------------------------------------------ */
 
   const submit = async () => {
-  if (!globalSelection) {
-    setError('Please select your language and comfort level first.')
-    return
+    if (!globalSelection) {
+      setError('Please select your language and comfort level first.')
+      return
+    }
+
+    setError('')
+    setResponse(null)
+    setReportResult(null)
+    setView('investigating')
+
+    try {
+      const result = await sendAgentMessage(sessionId, question.trim())
+      setResponse(result)
+      
+      // Also fetch site report for structured data
+      try {
+        const report = await getSiteReport(
+          Number(lat),
+          Number(lon),
+          question.trim()
+        )
+        setReportResult(report)
+      } catch (reportErr) {
+        // Site report is optional, continue with agent response
+        console.warn('Site report failed:', reportErr)
+      }
+    } catch (e) {
+      setError(errorDetail(e).message)
+    }
   }
-
-  setError('')
-  setResponse(null)
-  setView('investigating')
-
-  try {
-    const result = await getSiteReport(
-      Number(lat),
-      Number(lon),
-      question.trim()
-    )
-
-    setReportResult(result)
-  } catch (e) {
-    setError(errorDetail(e).message)
-  }
-}
 
  const goToReport = () => {
   if (!globalSelection) {
