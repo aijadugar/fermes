@@ -30,7 +30,7 @@ function list(name, fallback) {
 }
 
 export const config = {
-  port: int('PORT', 3000),
+  port: int('PORT', 8000),
   nodeEnv: optional('NODE_ENV', 'development'),
 
   app: {
