@@ -379,7 +379,7 @@ export default function Errands({
           </span>
 
           <div className="flex items-center gap-3">
-            <button
+            {/* <button
               type="button"
               className="
                 inline-flex items-center gap-1
@@ -395,7 +395,7 @@ export default function Errands({
               />
 
               Leaderboard
-            </button>
+            </button> */}
 
             <button
               type="button"
