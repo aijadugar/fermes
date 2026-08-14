@@ -7,6 +7,8 @@ const nextConfig = {
     'localhost:3001',
     '127.0.0.1:3001',
     '*.app.github.dev',
+    '127.0.0.1',
+    'localhost',
   ],
 
   experimental: {

@@ -1179,7 +1179,7 @@ function Investigation({
           </div>
         )}
       </main>
-      <FermesAssistant />
+      <FermesAssistant lat={coords.lat} lon={coords.lon} />
     </Shell>
   )
 }
@@ -1487,10 +1487,11 @@ function Report({
                 Farm suitability analysis
               </h2>
 
-              <p className="mt-4 whitespace-pre-wrap text-sm font-medium leading-7 text-gray-600">
-                {report?.summary ||
-                  'No summary returned.'}
-              </p>
+              <div className="prose prose-sm mt-4 max-w-none font-medium leading-7 text-gray-600">
+                <ReactMarkdown>
+                  {report?.summary || 'No summary returned.'}
+                </ReactMarkdown>
+              </div>
 
               {report?.summary_source && (
                 <p className="mt-4 text-xs font-bold text-gray-500">
@@ -1630,7 +1631,7 @@ function Report({
           </p> */}
         </footer>
       </main>
-      <FermesAssistant />
+      <FermesAssistant lat={coords.lat} lon={coords.lon} />
     </Shell>
   )
 }

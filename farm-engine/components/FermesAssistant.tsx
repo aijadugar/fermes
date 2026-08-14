@@ -41,7 +41,12 @@ const SUGGESTED_QUESTIONS = [
   'Which crop is best for this location?',
 ]
 
-export default function FermesAssistant() {
+type FermesAssistantProps = {
+  lat?: number | null
+  lon?: number | null
+}
+
+export default function FermesAssistant({ lat, lon }: FermesAssistantProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [mode, setMode] = useState<ChatMode>('search')
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -87,27 +92,32 @@ export default function FermesAssistant() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handleSendMessage = async (text?: string) => {
-    const messageText = text ?? input.trim()
-    if (!messageText || loading) return
+ const handleSendMessage = async (text?: string) => {
+  const messageText = text ?? input.trim()
+  if (!messageText || loading) return
 
-    setError(null)
-    setLoading(true)
+  setError(null)
+  setLoading(true)
 
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: messageText,
-      timestamp: Date.now(),
-    }
+  const userMessage: ChatMessage = {
+    id: crypto.randomUUID(),
+    role: 'user',
+    content: messageText,
+    timestamp: Date.now(),
+  }
 
-    setMessages((prev) => [...prev, userMessage])
-    setInput('')
+  setMessages((prev) => [...prev, userMessage])
+  setInput('')
 
-    try {
-      const response = await sendTextMessage(sessionIdRef.current, messageText)
+  try {
+    const contextualMessage =
+      lat != null && lon != null
+        ? `${messageText} (Location: ${lat}, ${lon})`
+        : messageText
 
-      const assistantMessage: ChatMessage = {
+    const response = await sendTextMessage(sessionIdRef.current, contextualMessage)
+
+    const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
         content: response.reply ?? 'I could not generate a response.',

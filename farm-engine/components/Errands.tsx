@@ -785,7 +785,7 @@ export default function Errands({
                 </div>
 
                 {/* Current selection */}
-                <div className="rounded-lg border-2 border-black bg-yellow-50 p-4">
+                {/* <div className="rounded-lg border-2 border-black bg-yellow-50 p-4">
                   <h3 className="text-xs font-black uppercase tracking-widest">
                     Your selection
                   </h3>
@@ -823,7 +823,7 @@ export default function Errands({
                       </span>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </CardContent>
 
               {/* Desktop Start */}
