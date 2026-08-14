@@ -7,6 +7,7 @@ import {
   LogOut,
   MapPin,
 } from 'lucide-react'
+import { UserMenu } from './auth/UserMenu'
 
 type CountryId = 'usa' | 'canada'
 type LanguageCode = 'en' | 'fr'
@@ -397,7 +398,7 @@ export default function Errands({
               Leaderboard
             </button> */}
 
-            <button
+            {/* <button
               type="button"
               className="
                 inline-flex items-center gap-1
@@ -414,7 +415,8 @@ export default function Errands({
               />
 
               Sign Out
-            </button>
+            </button> */}
+            <UserMenu />
           </div>
         </div>
       </div>

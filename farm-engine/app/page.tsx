@@ -32,6 +32,10 @@ import GlobalErrands, {
 
 import FermesAssistant from '@/components/FermesAssistant'
 
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { toFermesUser, type FermesUser } from '@/lib/auth/types'
+
 import {
   AgentResponse,
   BusinessCandidate,
@@ -1636,6 +1640,40 @@ function Report({
 /* -------------------------------------------------------------------------- */
 
 export default function Page() {
+
+  /* ------------------------------------------------------------------------ */
+  /* Login session
+  /* ------------------------------------------------------------------------ */
+
+  const [user, setUser] = useState<FermesUser | null>(null)
+const [authChecked, setAuthChecked] = useState(false)
+const router = useRouter()
+
+useEffect(() => {
+  const supabase = createClient()
+
+  supabase.auth.getUser().then(({ data }) => {
+    const currentUser = toFermesUser(data.user)
+    setUser(currentUser)
+    setAuthChecked(true)
+    if (!currentUser) {
+      router.replace('/login?next=/')
+    }
+  })
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    const currentUser = toFermesUser(session?.user ?? null)
+    setUser(currentUser)
+    if (!currentUser) {
+      router.replace('/login?next=/')
+    }
+  })
+
+  return () => subscription.unsubscribe()
+}, [router])
+
   const [view, setView] =
     useState<View>('onboarding')
 
@@ -1686,6 +1724,14 @@ export default function Page() {
         setOnline(false)
       )
   }, [])
+
+  if (!authChecked || !user) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
+      <p className="text-sm font-bold text-gray-500">Loading Fermes...</p>
+    </div>
+  )
+}
 
   /* ------------------------------------------------------------------------ */
   /* Global Errands Start                                                     */
