@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth/get-user'
 import { LoginForm } from '@/components/auth/LoginForm'
+import { sanitizeNext } from '@/lib/auth/sanitize-next'
 
 export const metadata = {
   title: 'Sign in | Fermes',
@@ -15,7 +16,7 @@ export default async function LoginPage({
 
   const user = await getCurrentUser()
   if (user) {
-    redirect(params.next && params.next.startsWith('/') ? params.next : '/')
+    redirect(sanitizeNext(params.next))
   }
 
   return (

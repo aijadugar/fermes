@@ -1,10 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PATH_PREFIXES = ['/app']
+const PUBLIC_PATH_PREFIXES = ['/login', '/auth']
 
-function isProtectedPath(pathname: string) {
-  return PROTECTED_PATH_PREFIXES.some(
+function isPublicPath(pathname: string) {
+  return PUBLIC_PATH_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   )
 }
@@ -42,7 +42,7 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname, search } = request.nextUrl
 
-  if (!user && isProtectedPath(pathname)) {
+  if (!user && !isPublicPath(pathname)) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/login'
     redirectUrl.search = ''

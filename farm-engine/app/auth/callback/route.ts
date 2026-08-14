@@ -1,13 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-
-function sanitizeNext(next: string | null): string {
-  if (!next) return '/'
-  if (!next.startsWith('/')) return '/'
-  if (next.startsWith('//')) return '/'
-  if (next.includes('\\')) return '/'
-  return next
-}
+import { sanitizeNext } from '@/lib/auth/sanitize-next'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)

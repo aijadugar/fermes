@@ -21,27 +21,29 @@ export function LoginForm({
         >
             <div className="mb-6 flex items-center gap-3">
                 <div
-                    className="
-            flex h-12 w-12 shrink-0 items-center justify-center
-            rounded-xl border-2 border-black bg-yellow-400
-            shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
-          "
-                >
-                    <Sprout className="size-6" />
-                </div>
-                <div>
-                    <div className="text-xl font-black uppercase tracking-tight">
-                        Fermes
-                    </div>
-                    <p className="text-sm font-medium text-gray-500">
-                        Farm intelligence starts here.
-                    </p>
-                </div>
-            </div>
+    className="
+        flex h-12 w-12 shrink-0 items-center justify-center
+        overflow-hidden rounded-full
+        border-2 border-black bg-yellow-400
+        shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+    "
+>
+    <img
+        src="/fermes.png"
+        alt="Fermes"
+        className="h-12 w-12 rounded-full object-cover"
+    />
+</div>
 
-            <p className="mb-6 text-sm font-bold">
-                Sign in to continue to Fermes.
-            </p>
+<div>
+    <div className="text-xl font-black uppercase tracking-tight text-black">
+        Fermes
+    </div>
+    <p className="text-sm font-medium text-gray-500">
+        Farm intelligence starts here.
+    </p>
+</div>
+            </div>
 
             {authError && (
                 <div
@@ -68,16 +70,6 @@ export function LoginForm({
             </div>
 
             <MagicLinkForm next={next} />
-
-        <a
-            href="/"
-            className="
-            mt-6 block text-center text-xs font-bold text-gray-500
-            transition hover:text-black
-            "
-      >
-            Back to Fermes
-        </a>
-    </div >
-  )
+        </div >
+    )
 }
