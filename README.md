@@ -1,12 +1,6 @@
-# Growing/farming agent — backend
+# Fermes Agent by Mireye
 
-Backend API for an agent that helps anyone growing something: whether a site
-is suitable to grow on, and finding nearby suppliers/warehouses/dealers/buyers.
-Frontend (three.js) attaches separately via the HTTP API.
-
-Verified: `npm install`, `npm test` (19/19 passing), and a live boot with
-real curl hits against `/health`, `/ready`, and `/v1/agent/message` all ran
-successfully during development of this project — not just claimed.
+Fermes helps anyone growing something: whether a site is suitable to grow on, and finding nearby suppliers/warehouses/dealers/buyers.
 
 ## Stack
 - **Sarvam AI** — chat completions (`sarvam-105b`, tool-calling) for reasoning,
@@ -15,6 +9,7 @@ successfully during development of this project — not just claimed.
   US primary coverage, Canada limited to proximity/drive-time, no other regions.
 - **Google Places** — nearby-business search (dealers, warehouses, co-ops),
   swappable per region.
+- **Google OAuth** — supports supabase OAuth system with Google Sign-in option.
 - **Express 4** with Helmet, CORS allowlist, rate limiting, request IDs,
   structured JSON logging, graceful shutdown.
 - **Session store** — pluggable: in-memory (with TTL) by default, Redis when
@@ -208,14 +203,3 @@ npm test
 Tests cover health/ready endpoints, agent validation, auth middleware,
 session store (TTL, cap, round-trip), and the HTTP retry client. External
 APIs are stubbed — no real Sarvam/Mireye/Google calls are made.
-
-## Production notes
-- Confirm `MIREYE_BASE_URL` against your Mireye dashboard — `api.mireye.com`
-  is a placeholder, not a verified endpoint.
-- Set `AUTH_API_TOKEN` before exposing the endpoint publicly.
-- Set `REDIS_URL` when running multiple instances (the in-memory store does
-  not share state across processes).
-- `reasoning_effort: null` disables Sarvam's thinking mode for latency; turn
-  it back on if the model makes poor tool choices on hard queries.
-- Places search is US/Canada-shaped by default; swap or add a second
-  provider for other regions.
