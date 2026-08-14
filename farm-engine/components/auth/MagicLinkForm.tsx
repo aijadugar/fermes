@@ -66,7 +66,6 @@ export function MagicLinkForm({ next }: { next?: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <label className="flex flex-col gap-2 text-sm font-bold">
-        <span className="uppercase tracking-wide">Email</span>
         <div className="relative">
           <Mail className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
           <input

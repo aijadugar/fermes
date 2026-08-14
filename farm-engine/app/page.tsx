@@ -1653,26 +1653,18 @@ useEffect(() => {
   const supabase = createClient()
 
   supabase.auth.getUser().then(({ data }) => {
-    const currentUser = toFermesUser(data.user)
-    setUser(currentUser)
+    setUser(toFermesUser(data.user))
     setAuthChecked(true)
-    if (!currentUser) {
-      router.replace('/login?next=/')
-    }
   })
 
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((_event, session) => {
-    const currentUser = toFermesUser(session?.user ?? null)
-    setUser(currentUser)
-    if (!currentUser) {
-      router.replace('/login?next=/')
-    }
+    setUser(toFermesUser(session?.user ?? null))
   })
 
   return () => subscription.unsubscribe()
-}, [router])
+}, [])
 
   const [view, setView] =
     useState<View>('onboarding')
