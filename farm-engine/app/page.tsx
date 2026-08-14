@@ -811,12 +811,12 @@ function FormStep({
         </div>
 
         <footer className="mt-16 border-t-2 border-black pt-6 text-center">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-500">
+          {/* <p className="text-xs font-black uppercase tracking-widest text-gray-500">
             Speech, voice and dialogue by{' '}
             <span className="text-black">
               Sarvam AI
             </span>
-          </p>
+          </p> */}
         </footer>
       </main>
     </Shell>
@@ -1622,12 +1622,12 @@ function Report({
         )}
 
         <footer className="mt-16 border-t-2 border-black pt-6 text-center">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-500">
+          {/* <p className="text-xs font-black uppercase tracking-widest text-gray-500">
             Speech, voice and dialogue by{' '}
             <span className="text-black">
               Sarvam AI
             </span>
-          </p>
+          </p> */}
         </footer>
       </main>
       <FermesAssistant />
